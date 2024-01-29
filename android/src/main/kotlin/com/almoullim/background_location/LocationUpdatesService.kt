@@ -108,7 +108,7 @@ class LocationUpdatesService : Service() {
             mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
             
             mFusedLocationCallback = object : LocationCallback() {
-                override fun onLocationResult(locationResult: LocationResult?) {
+                override fun onLocationResult(locationResult: LocationResult) {
                     super.onLocationResult(locationResult)
                     onNewLocation(locationResult!!.lastLocation)
                 }
@@ -156,7 +156,7 @@ class LocationUpdatesService : Service() {
         Utils.setRequestingLocationUpdates(this, true)
         try {
             if (isGoogleApiAvailable && !this.forceLocationManager) {
-                mFusedLocationClient!!.requestLocationUpdates(mLocationRequest,
+                mFusedLocationClient!!.requestLocationUpdates(mLocationRequest!!,
                     mFusedLocationCallback!!, Looper.myLooper())
             } else {
                 mLocationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0f, mLocationManagerCallback!!)
@@ -198,10 +198,11 @@ class LocationUpdatesService : Service() {
         }
     }
 
-    private fun onNewLocation(location: Location) {
-        mLocation = location
+    private fun onNewLocation(location: Location?) {
+        if (location == null) return;
+        mLocation = location!!
         val intent = Intent(ACTION_BROADCAST)
-        intent.putExtra(EXTRA_LOCATION, location)
+        intent.putExtra(EXTRA_LOCATION, location!!)
         LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
     }
 
